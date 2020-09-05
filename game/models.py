@@ -2,17 +2,14 @@ from django.db import models
 
 
 class Player(models.Model):
-    cookie = models.CharField(max_length=64,
-                              default='nom')
-
-    def __str__(self):
-        return self.cookie
+    session_id = models.TextField(null=True)
 
 
 
 class Game(models.Model):
     number = models.IntegerField()
     ongoing = models.BooleanField(default=True)
+    final_tries = models.IntegerField(null=True)
     players = models.ManyToManyField(
         'Player',
         through='PlayerGameInfo',
@@ -36,8 +33,8 @@ class PlayerGameInfo(models.Model):
                                   default=False)
     announce = models.BooleanField(verbose_name='Активна ли всё еще игра для этого игрока',
                                   default=True)
-    victor = models.BooleanField(verbose_name='Победитель',
-                                 default=False)
+    tries = models.IntegerField(default=0)
+    last_number = models.IntegerField(null=True)
 
     class Meta:
         unique_together = ('player', 'game')
