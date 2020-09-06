@@ -16,6 +16,9 @@ class Game(models.Model):
         related_name='games'
     )
 
+    def __str__(self):
+        return self.number
+
 
 
 class PlayerGameInfo(models.Model):
@@ -32,9 +35,12 @@ class PlayerGameInfo(models.Model):
     creator = models.BooleanField(verbose_name='Создатель игры',
                                   default=False)
     announce = models.BooleanField(verbose_name='Активна ли всё еще игра для этого игрока',
-                                  default=True)
+                                  default=False)
     tries = models.IntegerField(default=0)
     last_number = models.IntegerField(null=True)
 
     class Meta:
         unique_together = ('player', 'game')
+
+    def __str__(self):
+        return self.last_number
