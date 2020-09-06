@@ -7,14 +7,15 @@
 {% block content %}
     <div class="container">
         <div class="header">
-            <h1>Игра "Угадай число"</h1>
-            <form method="post" action="{% url 'game' %}">
-                {% csrf_token %}
-                {{ form }}
-                <input type="submit" value="Ввести число">
+            {% if creator is True %}
+                <h1>Поздраляем</h1>
+                <h3>Ваше число было угадано</h3>
+                <h3>Попыток: {{tries}}</h3>
+            {% else %}
+                <h1>Число <b>{{number}}</b> было угадано другим игроком</h1>
+                <h3>Попыток: {{tries}}</h3>
+            {% endif %}
 
-
-            </form>
         </div>
     </div>
 {% endblock %}

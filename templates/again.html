@@ -8,6 +8,14 @@
     <div class="container">
         <div class="header">
             <h1>Игра "Угадай число"</h1>
+            {% if tries > 0 %}
+                <h2>Вы назвали число <b>{{number}}</b></h2>
+                {% if number > original %}
+                    <h3>Ваше число больше загаданного</h3>
+                {% else %}
+                    <h3>Ваше число меньше загаданного</h3>
+                {% endif %}
+            {% endif %}
             <form method="post" action="{% url 'game' %}">
                 {% csrf_token %}
                 {{ form }}

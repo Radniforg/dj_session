@@ -9,7 +9,7 @@ def show_home(request):
     if not request.session.exists(request.session.session_key):
         request.session.create()
     current_player = request.session.get('player', 'new')
-    if current_player is 'new':
+    if current_player == 'new':
         Player.objects.create(session_id=request.session.session_key)
         request.session['player'] = 'old'
     player = Player.objects.get(session_id=request.session.session_key)
@@ -20,9 +20,12 @@ def show_home(request):
                 form = GameForm(request.POST)
                 if form.is_valid():
                     game_save = form.save(commit=False)
-                    game_save.players.add(player)
-                    game_save.playergameinfo_set.create(player=player, creator=True)
                     game_save.save()
+                    game_save.players.add(player)
+                    game_save.save()
+                    creator = game_save.playergameinfo_set.filter(player=player)[0]
+                    creator.creator = True
+                    creator.save()
                     return render(request,
                                   'input.html')
             else:
@@ -34,47 +37,60 @@ def show_home(request):
             game_id = current_game.game
             tries = game_id.final_tries
             creator = current_game.creator
+            current_game.announce = True
             current_game.save()
             return render(request, 'result.html', context={
-                'tries': tries, 'creator': creator})
+                'tries': tries, 'creator': creator,
+                'number': game_id.number})
     else:
         #если есть активная игра
-        try:
-            game = Game.objects.get(ongoing=True)
-        except MultipleObjectsReturned:
-            game = Game.objects.filter(ongoing=True)[0]
+        game = Game.objects.filter(ongoing=True).first()
+        if not player.games.filter(ongoing=True):
+            player.games.add(game)
+            player.save()
         if not game.playergameinfo_set.filter(creator=False):
             #Проверяет, является ли игрок создателем активной игры
             return render(request,
-                          'input.html')
+                          'input.html',
+                          context={'key': request.session.session_key})
         else:
+            current = player.playergameinfo_set.get(game=game)
             if request.method == 'POST':
                 form = TryForm(request.POST)
                 if form.is_valid():
                     game_save = form.save(commit=False)
-                    game_save.save()
                     if game_save.last_number == game.number:
                         #Если угадал
-                        game.final_tries = game_save.tries
+                        game.final_tries = current.tries + 1
                         game.ongoing = False
-                        game_save.announce = True
-                        game_save.save()
+                        current.announce = True
+                        current.last_number = game_save.last_number
+                        current.save()
                         game.save()
                         return render(request, 'success.html',
                                       context={'tries': game.final_tries,
                                                'number': game.number})
                     else:
                         #Если не угадал
-                        game_save.tries += 1
-                        game_save.save()
+                        current.last_number = game_save.last_number
+                        current.tries += 1
+                        current.save()
                         return render(request, 'again.html',
-                                      context={'number': game_save.last_number,
-                                               'form': form})
+                                      context={'number': current.last_number,
+                                               'original': game.number,
+                                               'form': form,
+                                               'tries': current.tries})
             form = TryForm()
+            tries = current.tries
+            original = game.number
+            number = current.last_number
             return render(
                 request,
                 'again.html',
-                context={'form': form}
+                context={'form': form,
+                         'original': original,
+                         'tries': tries,
+                         'number': number}
             )
 
 

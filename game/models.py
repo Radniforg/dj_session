@@ -17,7 +17,7 @@ class Game(models.Model):
     )
 
     def __str__(self):
-        return self.number
+        return str(self.number)
 
 
 
@@ -41,6 +41,3 @@ class PlayerGameInfo(models.Model):
 
     class Meta:
         unique_together = ('player', 'game')
-
-    def __str__(self):
-        return self.last_number

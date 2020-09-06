@@ -7,14 +7,9 @@
 {% block content %}
     <div class="container">
         <div class="header">
-            <h1>Игра "Угадай число"</h1>
-            <form method="post" action="{% url 'game' %}">
-                {% csrf_token %}
-                {{ form }}
-                <input type="submit" value="Ввести число">
-
-
-            </form>
+            <h1>Поздраляем</h1>
+            <h3>Вы угадали число <b>{{number}}</b></h3>
+            <h3>Попыток: {{tries}}</h3>
         </div>
     </div>
 {% endblock %}

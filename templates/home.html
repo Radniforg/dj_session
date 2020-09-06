@@ -8,12 +8,11 @@
     <div class="container">
         <div class="header">
             <h1>Игра "Угадай число"</h1>
-            <form method="post" action="{% url 'game' %}">
+            <h2>Загадайте число</h2>
+            <form method="post" action="">
                 {% csrf_token %}
                 {{ form }}
                 <input type="submit" value="Ввести число">
-
-
             </form>
         </div>
     </div>
